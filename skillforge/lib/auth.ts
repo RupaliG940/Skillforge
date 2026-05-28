@@ -1,7 +1,7 @@
 import NextAuth, { NextAuthOptions, DefaultSession } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from './prisma'
-import bcrypt from 'bcryptjs'
+import { compare } from 'bcryptjs'
 
 declare module 'next-auth' {
   interface Session {
@@ -28,7 +28,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!user || !user.password) return null
 
-        const isMatch = await bcrypt.compare(credentials.password, user.password)
+        const isMatch = await compare(credentials.password, user.password)
         if (!isMatch) return null
 
         return {

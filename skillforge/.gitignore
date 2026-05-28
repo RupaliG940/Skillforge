@@ -41,3 +41,10 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+// filepath: c:\Users\harsh\OneDrive\Documents\GitHub\Skillforge\skillforge\package.json
+{
+  "scripts": {
+    "postinstall": "prisma generate"
+  }
+}

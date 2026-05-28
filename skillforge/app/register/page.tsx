@@ -5,43 +5,43 @@ import Link from 'next/link'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' })
+  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError('')
 
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match')
-      setLoading(false)
       return
     }
 
+    if (form.password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
+
+    setLoading(true)
+
     try {
-      const res = await fetch('/api/register', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password,
-        }),
+        body: JSON.stringify({ fullName: form.fullName, email: form.email, password: form.password }),
       })
 
-      const data = await res.json()
-
       if (!res.ok) {
-        setError(data.error || 'Something went wrong')
-        setLoading(false)
+        const data = await res.json()
+        setError(data.message || 'Registration failed')
         return
       }
 
-      router.push('/login?message=Account created successfully')
-    } catch (error) {
-      setError('Network error. Please try again.')
+      router.push('/login')
+    } catch (err) {
+      setError('Something went wrong')
+    } finally {
       setLoading(false)
     }
   }
@@ -76,8 +76,8 @@ export default function RegisterPage() {
               <input
                 type="text"
                 placeholder="Your full name"
-                value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
+                value={form.fullName}
+                onChange={e => setForm({ ...form, fullName: e.target.value })}
                 required
                 className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-orange-500 transition-colors placeholder:text-zinc-600"
               />
