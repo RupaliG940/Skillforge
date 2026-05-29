@@ -15,6 +15,12 @@ model User {
   password         String?
   college          String?
   targetRole       String?
+  graduationYear   Int?
+  githubUsername   String?
+  xp               Int                 @default(0)
+  level            Int                 @default(1)
+  streak           Int                 @default(0)
+  badges           String[]            @default([])
   bio              String?
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
@@ -183,3 +189,9 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+const handler = () => {};
+handler.bind(this);
+
+const handleClick = () => { ... };
+<button onClick={handleClick}>Save</button>

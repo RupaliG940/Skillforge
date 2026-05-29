@@ -5,7 +5,16 @@ import Link from 'next/link'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '' })
+  const [form, setForm] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    college: '',
+    targetRole: '',
+    graduationYear: '',
+    githubUsername: ''
+  })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -29,7 +38,15 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName: form.fullName, email: form.email, password: form.password }),
+        body: JSON.stringify({
+          fullName: form.fullName,
+          email: form.email,
+          password: form.password,
+          college: form.college,
+          targetRole: form.targetRole,
+          graduationYear: form.graduationYear,
+          githubUsername: form.githubUsername
+        }),
       })
 
       if (!res.ok) {
@@ -117,6 +134,52 @@ export default function RegisterPage() {
                 required
                 className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-orange-500 transition-colors placeholder:text-zinc-600"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-zinc-400 text-sm mb-1.5 block">College / University</label>
+                <input
+                  type="text"
+                  placeholder="Your college or university"
+                  value={form.college}
+                  onChange={e => setForm({ ...form, college: e.target.value })}
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-orange-500 transition-colors placeholder:text-zinc-600"
+                />
+              </div>
+              <div>
+                <label className="text-zinc-400 text-sm mb-1.5 block">Target Role</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Frontend Developer"
+                  value={form.targetRole}
+                  onChange={e => setForm({ ...form, targetRole: e.target.value })}
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-orange-500 transition-colors placeholder:text-zinc-600"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-zinc-400 text-sm mb-1.5 block">Graduation Year</label>
+                <input
+                  type="text"
+                  placeholder="2026"
+                  value={form.graduationYear}
+                  onChange={e => setForm({ ...form, graduationYear: e.target.value })}
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-orange-500 transition-colors placeholder:text-zinc-600"
+                />
+              </div>
+              <div>
+                <label className="text-zinc-400 text-sm mb-1.5 block">GitHub Username</label>
+                <input
+                  type="text"
+                  placeholder="github.com/yourname"
+                  value={form.githubUsername}
+                  onChange={e => setForm({ ...form, githubUsername: e.target.value })}
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-orange-500 transition-colors placeholder:text-zinc-600"
+                />
+              </div>
             </div>
 
             <button

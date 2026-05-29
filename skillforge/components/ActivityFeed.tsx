@@ -39,13 +39,19 @@ const mockActivities: ActivityItem[] = [
 
 import Link from 'next/link'
 
-export default function ActivityFeed() {
+interface ActivityFeedProps {
+  items?: ActivityItem[]
+}
+
+export default function ActivityFeed({ items }: ActivityFeedProps) {
+  const activities = items && items.length > 0 ? items : mockActivities
+
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
       <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
 
       <div className="space-y-4">
-        {mockActivities.map((activity) => (
+        {activities.map((activity) => (
           <div key={activity.id} className="flex items-start gap-3 pb-4 border-b border-zinc-800 last:border-b-0 last:pb-0">
             <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 shrink-0"></div>
             <div className="flex-1 min-w-0">

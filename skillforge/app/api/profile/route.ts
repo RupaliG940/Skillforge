@@ -13,7 +13,7 @@ export async function PUT(req: Request) {
       )
     }
 
-    const { name, email, college, targetRole, bio } = await req.json()
+    const { name, email, college, targetRole, graduationYear, githubUsername, bio } = await req.json()
 
     if (!name || !email) {
       return NextResponse.json(
@@ -44,6 +44,8 @@ export async function PUT(req: Request) {
         email,
         college: college || null,
         targetRole: targetRole || null,
+        graduationYear: graduationYear ? Number(graduationYear) : null,
+        githubUsername: githubUsername || null,
         bio: bio || null,
       }
     })
@@ -88,6 +90,8 @@ export async function GET(req: Request) {
         email: true,
         college: true,
         targetRole: true,
+        graduationYear: true,
+        githubUsername: true,
         bio: true,
         createdAt: true,
       }

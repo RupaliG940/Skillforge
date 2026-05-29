@@ -8,6 +8,8 @@ interface UserProfile {
   email: string
   college: string
   targetRole: string
+  graduationYear: string
+  githubUsername: string
   bio: string
 }
 
@@ -22,6 +24,8 @@ export default function ProfilePage() {
     email: '',
     college: '',
     targetRole: '',
+    graduationYear: '',
+    githubUsername: '',
     bio: ''
   })
 
@@ -32,14 +36,39 @@ export default function ProfilePage() {
     }
 
     if (session?.user) {
-      // In a real app, fetch user profile data from API
       setForm({
         name: session.user.name || '',
         email: session.user.email || '',
         college: '',
         targetRole: '',
+        graduationYear: '',
+        githubUsername: '',
         bio: ''
       })
+
+      const fetchProfile = async () => {
+        try {
+          const res = await fetch('/api/profile')
+          if (!res.ok) return
+          const data = await res.json()
+          const profile = data?.user
+          if (profile) {
+            setForm({
+              name: profile.name || session.user.name || '',
+              email: profile.email || session.user.email || '',
+              college: profile.college || '',
+              targetRole: profile.targetRole || '',
+              graduationYear: profile.graduationYear ? String(profile.graduationYear) : '',
+              githubUsername: profile.githubUsername || '',
+              bio: profile.bio || ''
+            })
+          }
+        } catch (error) {
+          console.error('Failed to load profile', error)
+        }
+      }
+
+      fetchProfile()
     }
   }, [session, status, router])
 
@@ -113,6 +142,12 @@ export default function ProfilePage() {
                 {form.college && (
                   <p className="text-zinc-600 text-sm mt-2">{form.college}</p>
                 )}
+                {form.graduationYear && (
+                  <p className="text-zinc-600 text-sm mt-1">Class of {form.graduationYear}</p>
+                )}
+                {form.githubUsername && (
+                  <p className="text-zinc-600 text-sm mt-1">GitHub: {form.githubUsername}</p>
+                )}
               </div>
 
               {form.bio && (
@@ -182,6 +217,30 @@ export default function ProfilePage() {
                       value={form.targetRole}
                       onChange={e => setForm({ ...form, targetRole: e.target.value })}
                       placeholder="e.g. Senior React Developer"
+                      className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-orange-500 transition-colors placeholder:text-zinc-600"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-zinc-400 text-sm mb-2 block">Graduation Year</label>
+                    <input
+                      type="text"
+                      value={form.graduationYear}
+                      onChange={e => setForm({ ...form, graduationYear: e.target.value })}
+                      placeholder="2026"
+                      className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-orange-500 transition-colors placeholder:text-zinc-600"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-zinc-400 text-sm mb-2 block">GitHub Username</label>
+                    <input
+                      type="text"
+                      value={form.githubUsername}
+                      onChange={e => setForm({ ...form, githubUsername: e.target.value })}
+                      placeholder="github.com/yourname"
                       className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-orange-500 transition-colors placeholder:text-zinc-600"
                     />
                   </div>

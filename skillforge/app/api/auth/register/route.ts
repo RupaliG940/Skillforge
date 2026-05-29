@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
   try {
-    const { fullName, email, password } = await req.json()
+    const { fullName, email, password, college, targetRole, graduationYear, githubUsername } = await req.json()
 
     // Validate input
     if (!fullName || !email || !password) {
@@ -32,6 +32,10 @@ export async function POST(req: NextRequest) {
         name: fullName,
         email,
         password: hashedPassword,
+        college: college || null,
+        targetRole: targetRole || null,
+        graduationYear: graduationYear ? Number(graduationYear) : null,
+        githubUsername: githubUsername || null,
       },
     })
 

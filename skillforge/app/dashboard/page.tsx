@@ -1,21 +1,83 @@
 import Link from 'next/link'
 import { auth } from '@/auth'
+import { prisma } from '@/lib/prisma'
 import StatsCard from '@/components/StatsCard'
 import ActivityFeed from '@/components/ActivityFeed'
 import { Code, TrendingUp, FolderOpen, Calendar } from 'lucide-react'
 
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric'
+  }).format(date)
+}
+
+function computeStreak(sessions: Array<{ createdAt: Date }>) {
+  const daySet = new Set(sessions.map((session) => new Date(session.createdAt).toDateString()))
+  let streak = 0
+  const today = new Date()
+  let current = new Date(today)
+
+  while (daySet.has(current.toDateString())) {
+    streak += 1
+    current.setDate(current.getDate() - 1)
+  }
+
+  return streak
+}
+
 export default async function DashboardPage() {
   const session = await auth()
 
-  // Mock data - in a real app, this would come from the database
+  const user = session?.user?.id
+    ? await prisma.user.findUnique({
+        where: { id: session.user.id },
+        include: {
+          skills: { orderBy: { updatedAt: 'desc' }, take: 4 },
+          projects: { orderBy: { updatedAt: 'desc' }, take: 4 },
+          interviews: { orderBy: { createdAt: 'desc' }, take: 4 },
+          _count: { select: { skills: true, projects: true, interviews: true } }
+        }
+      })
+    : null
+
   const stats = {
-    skillsTracked: 12,
-    averageScore: 87,
-    projectsCount: 3,
-    learningStreak: 7
+    skillsTracked: user?._count.skills ?? 0,
+    averageScore: user?.interviews?.length
+      ? Math.round(user.interviews.reduce((total, interview) => total + interview.score, 0) / user.interviews.length)
+      : 0,
+    projectsCount: user?.projects?.filter((project) => project.progress >= 100 || project.status.toLowerCase() === 'completed').length ?? 0,
+    learningStreak: user?.streak ?? 0
   }
 
-  const userName = session?.user?.name || 'Developer'
+  const recentActivities = [
+    ...((user?.interviews ?? []).slice(0, 2).map((interview) => ({
+      id: interview.id,
+      type: 'interview' as const,
+      title: `Finished ${interview.category || 'Interview'} session`,
+      description: `Score ${interview.score}% for ${interview.role || 'practice'} session`,
+      timestamp: formatDate(new Date(interview.createdAt))
+    }))),
+    ...((user?.projects ?? []).slice(0, 2).map((project) => ({
+      id: project.id,
+      type: 'project' as const,
+      title: project.progress >= 100 ? `Completed ${project.name}` : `Updated ${project.name}`,
+      description: project.progress >= 100
+        ? 'Project is complete and ready to showcase.'
+        : `Progress ${project.progress}% • ${project.status}`,
+      timestamp: formatDate(new Date(project.updatedAt))
+    }))),
+    ...((user?.skills ?? []).slice(0, 2).map((skill) => ({
+      id: skill.id,
+      type: 'skill' as const,
+      title: `Tracked ${skill.name}`,
+      description: `Level ${skill.level}% • ${skill.category}`,
+      timestamp: formatDate(new Date(skill.updatedAt))
+    })))
+  ].slice(0, 4)
+
+  const userName = user?.name?.split(' ')[0] ?? 'Developer'
+  const targetRole = user?.targetRole ?? 'your next role'
 
   return (
     <div className="space-y-6">
@@ -102,7 +164,7 @@ export default async function DashboardPage() {
 
         {/* Activity Feed */}
         <div className="lg:col-span-2">
-          <ActivityFeed />
+          <ActivityFeed items={recentActivities} />
         </div>
       </div>
     </div>
