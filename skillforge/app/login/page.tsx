@@ -16,14 +16,15 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
+    const email = form.email.trim().toLowerCase()
     const res = await signIn('credentials', {
-      email: form.email,
+      email,
       password: form.password,
       redirect: false,
     })
 
     if (res?.error) {
-      setError('Invalid email or password')
+      setError(res.error === 'CredentialsSignin' ? 'Invalid email or password' : res.error)
       setLoading(false)
       return
     }
@@ -60,6 +61,7 @@ export default function LoginPage() {
               <label className="text-zinc-400 text-sm mb-1.5 block">Email</label>
               <input
                 type="email"
+                autoComplete="email"
                 placeholder="you@email.com"
                 value={form.email}
                 onChange={e => setForm({ ...form, email: e.target.value })}
@@ -72,6 +74,7 @@ export default function LoginPage() {
               <label className="text-zinc-400 text-sm mb-1.5 block">Password</label>
               <input
                 type="password"
+                autoComplete="current-password"
                 placeholder="Your password"
                 value={form.password}
                 onChange={e => setForm({ ...form, password: e.target.value })}
